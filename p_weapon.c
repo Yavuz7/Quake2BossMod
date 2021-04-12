@@ -807,11 +807,11 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorAdd (offset, g_offset, offset);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
-	VectorScale (forward, -2, ent->client->kick_origin);
-	ent->client->kick_angles[0] = -1;
+	VectorScale (forward, 20, ent->client->kick_origin);
+	ent->client->kick_angles[0] = 200;
 
-	fire_blaster (ent, start, forward, 0, 1000, effect, true);
-
+	fire_blaster (ent, start, forward, 0, 100, effect, hyper);
+	fire_rail(ent, start, forward, 1, 10);
 	fire_rocket(ent, start, forward, damage, 15, 100, 20);
 
 	// send muzzle flash
@@ -820,7 +820,7 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	if (hyper)
 		gi.WriteByte (MZ_HYPERBLASTER | is_silenced);
 	else
-		gi.WriteByte (MZ_BLASTER | is_silenced);
+		gi.WriteByte (MZ_GRENADE | is_silenced);
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
@@ -835,7 +835,7 @@ void Weapon_Blaster_Fire (edict_t *ent)
 		damage = 15;
 	else
 		damage = 10;
-	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER);
+	Blaster_Fire (ent, vec3_origin, damage, false, EF_ROCKET);
 	ent->client->ps.gunframe++;
 }
 
