@@ -31,6 +31,9 @@ void monster_fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 
 void monster_fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int flashtype, int effect)
 {
+	for (int i = 1; i < 5; ++i){
+		fire_blaster(self, start, dir, damage, speed, effect, false);
+	}
 	fire_blaster (self, start, dir, damage, speed, effect, false);
 
 	gi.WriteByte (svc_muzzleflash2);
