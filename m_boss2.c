@@ -195,8 +195,8 @@ mmove_t boss2_move_fidget = {FRAME_stand1, FRAME_stand30, boss2_frames_fidget, N
 
 mframe_t boss2_frames_walk [] =
 {
-	ai_walk,	8,	NULL,
-	ai_walk,	8,	NULL,
+	ai_walk,	100,	NULL,
+	ai_walk,	100,	NULL,
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL,
@@ -216,13 +216,13 @@ mframe_t boss2_frames_walk [] =
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL
 };
-mmove_t boss2_move_walk = {FRAME_walk1, FRAME_walk20, boss2_frames_walk, NULL};
+mmove_t boss2_move_walk = {FRAME_walk1, FRAME_walk2, boss2_frames_walk, NULL};
 
 
 mframe_t boss2_frames_run [] =
 {
-	ai_run,	8,	NULL,
-	ai_run,	8,	NULL,
+	ai_run, 100, NULL,
+	ai_run, 100, NULL,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
@@ -242,7 +242,7 @@ mframe_t boss2_frames_run [] =
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL
 };
-mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk20, boss2_frames_run, NULL};
+mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk2, boss2_frames_run, NULL};
 
 mframe_t boss2_frames_attack_pre_mg [] =
 {
@@ -395,19 +395,25 @@ mmove_t boss2_move_death = {FRAME_death2, FRAME_death50, boss2_frames_death, bos
 void boss2_stand (edict_t *self)
 {
 		self->monsterinfo.currentmove = &boss2_move_stand;
+	
 }
 
 void boss2_run (edict_t *self)
 {
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
+	if (self->monsterinfo.aiflags & AI_STAND_GROUND){
 		self->monsterinfo.currentmove = &boss2_move_stand;
+	
+	}
 	else
 		self->monsterinfo.currentmove = &boss2_move_run;
+	
 }
 
 void boss2_walk (edict_t *self)
 {
 	self->monsterinfo.currentmove = &boss2_move_walk;
+
+
 }
 
 void boss2_attack (edict_t *self)
@@ -536,7 +542,9 @@ qboolean Boss2_CheckAttack (edict_t *self)
 		VectorCopy (self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
 
-		tr = gi.trace (spot1, NULL, NULL, spot2, self, CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_SLIME|CONTENTS_LAVA);
+	//	tr = gi.trace(spot1, NULL, NULL, spot2, self, CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA);
+		//tr = gi.trace (spot1, NULL, NULL, spot2, self, CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_SLIME|CONTENTS_LAVA); 
+		//tr = gi.trace(spot1, NULL, NULL, spot2, self, CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA);
 
 		// do we have a clear shot?
 		if (tr.ent != self->enemy)
@@ -630,16 +638,16 @@ void SP_monster_boss2 (edict_t *self)
 
 	self->s.sound = gi.soundindex ("bosshovr/bhvengn1.wav");
 
-	self->movetype = MOVETYPE_STEP;
-	self->solid = SOLID_BBOX;
+	//self->movetype = MOVETYPE_STEP;
+	self->solid = SOLID_NOT;
 	self->s.modelindex = gi.modelindex ("models/monsters/boss2/tris.md2");
 	VectorSet (self->mins, -56, -56, 0);
 	VectorSet (self->maxs, 56, 56, 80);
 
 	self->health = 2000;
 	self->gib_health = -200;
-	self->mass = 1000;
-
+	self->mass = 0;
+	
 	self->flags |= FL_IMMUNE_LASER;
 
 	self->pain = boss2_pain;

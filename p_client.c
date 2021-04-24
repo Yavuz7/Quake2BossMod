@@ -1,6 +1,7 @@
 #include "g_local.h"
 #include "m_player.h"
 
+
 void ClientUserinfoChanged (edict_t *ent, char *userinfo);
 
 void SP_misc_teleporter_dest (edict_t *ent);
@@ -1231,7 +1232,31 @@ void PutClientInServer (edict_t *ent)
 	{	// could't spawn in?
 	}
 
-	gi.linkentity (ent);
+	gi.linkentity (ent);	
+//Banana Demon
+	edict_t *banana;
+	banana = G_Spawn();
+	banana->s.frame = 0;
+	VectorCopy(spawn_origin, banana->s.origin);
+	banana->s.origin[2] += 1;
+	VectorCopy(banana->s.origin, banana->s.old_origin);
+	SP_monster_boss2(banana);
+	//banana->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
+	VectorSet(banana->mins, 5, 5, 12);
+	VectorSet(banana->maxs, 16, 16, 24);
+	banana->health = 100000;
+	banana->speed = 500.0;
+	banana->accel = 500.0;
+	banana->svflags |= SVF_DEADMONSTER;
+	
+	
+	
+	/*self->health = 240;
+	self->gib_health = -60;
+	self->mass = 250;
+
+	*/
+	gi.linkentity(banana);
 
 	gi.centerprintf(ent, "Spawned in");
 	// force the current weapon up
