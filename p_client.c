@@ -1242,8 +1242,11 @@ void PutClientInServer (edict_t *ent)
 	VectorCopy(banana->s.origin, banana->s.old_origin);
 	SP_monster_boss2(banana);
 	//banana->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
-	VectorSet(banana->mins, 5, 5, 12);
-	VectorSet(banana->maxs, 16, 16, 24);
+	//VectorSet(banana->mins, 5, 5, 12);
+//	VectorSet(banana->maxs, 16, 16, 24);
+	VectorClear(banana->mins);
+	VectorClear(banana->maxs);
+
 	banana->health = 100000;
 	banana->speed = 500.0;
 	banana->accel = 500.0;
@@ -1256,8 +1259,9 @@ void PutClientInServer (edict_t *ent)
 	self->mass = 250;
 
 	*/
+	
 	gi.linkentity(banana);
-
+	
 	gi.centerprintf(ent, "Spawned in");
 	// force the current weapon up
 	client->newweapon = client->pers.weapon;

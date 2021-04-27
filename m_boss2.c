@@ -10,6 +10,9 @@ boss2
 #include "m_boss2.h"
 
 void BossExplode (edict_t *self);
+float timer;
+float timeToEvent;
+int count;
 
 qboolean infront (edict_t *self, edict_t *other);
 
@@ -26,6 +29,7 @@ void boss2_search (edict_t *self)
 }
 
 void boss2_run (edict_t *self);
+void boss2_event(edict_t *self);
 void boss2_stand (edict_t *self);
 void boss2_dead (edict_t *self);
 void boss2_attack (edict_t *self);
@@ -223,7 +227,7 @@ mframe_t boss2_frames_run [] =
 {
 	ai_run, 100, NULL,
 	ai_run, 100, NULL,
-	ai_run,	8,	NULL,
+	ai_run,	100,	boss2_event,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
@@ -242,7 +246,7 @@ mframe_t boss2_frames_run [] =
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL
 };
-mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk2, boss2_frames_run, NULL};
+mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk3, boss2_frames_run, NULL};
 
 mframe_t boss2_frames_attack_pre_mg [] =
 {
@@ -398,6 +402,18 @@ void boss2_stand (edict_t *self)
 	
 }
 
+void boss2_event(edict_t *self){
+	edict_t	*ent = NULL;
+	ent = findradius(ent, self->s.origin, 200.0);
+	timeToEvent = level.time - count*10;
+	
+	gi.centerprintf(ent,"time:%f",timeToEvent);
+	if (timeToEvent > 10.0){
+		timeToEvent = 0.0;
+		count += 1;
+	}
+}
+
 void boss2_run (edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND){
@@ -405,7 +421,9 @@ void boss2_run (edict_t *self)
 	
 	}
 	else
+		//boss2_event(self);
 		self->monsterinfo.currentmove = &boss2_move_run;
+		
 	
 }
 
@@ -629,6 +647,8 @@ void SP_monster_boss2 (edict_t *self)
 		G_FreeEdict (self);
 		return;
 	}
+	count = 0;
+	
 
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
