@@ -419,6 +419,7 @@ void boss2_event(edict_t *self){
 }
 	
 	timeToEvent = level.time - count*5;
+	timeToEvent -= level.killed_monsters * 2;
 	if (deader == 0){
 		//gi.centerprintf(ent,"time:%f",timeToEvent);
 		if (timeToEvent > 5.0){
@@ -705,7 +706,7 @@ void SP_monster_boss2 (edict_t *self)
 	}
 	count = 0;
 	ent = findradius(ent, self->s.origin, 20.0);
-	startmonsters = level.total_monsters/2;
+	startmonsters = level.total_monsters-4;
 	deader = 0;
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
