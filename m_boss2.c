@@ -13,6 +13,8 @@ void BossExplode (edict_t *self);
 float timer;
 float timeToEvent;
 int count;
+int rando;
+edict_t	*ent = NULL;
 
 qboolean infront (edict_t *self, edict_t *other);
 
@@ -52,7 +54,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_1);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_1);
 
 //2
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
@@ -60,7 +62,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_2);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_2);
 
 //3
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
@@ -68,7 +70,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_3);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_3);
 
 //4
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
@@ -76,7 +78,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_4);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_4);
 }	
 
 void boss2_firebullet_right (edict_t *self)
@@ -298,7 +300,7 @@ mframe_t boss2_frames_attack_rocket [] =
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
-	ai_move,	-20,	Boss2Rocket,
+	ai_move,	-1,	Boss2Rocket,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
@@ -403,14 +405,55 @@ void boss2_stand (edict_t *self)
 }
 
 void boss2_event(edict_t *self){
-	edict_t	*ent = NULL;
-	ent = findradius(ent, self->s.origin, 200.0);
-	timeToEvent = level.time - count*10;
 	
-	gi.centerprintf(ent,"time:%f",timeToEvent);
-	if (timeToEvent > 10.0){
+
+	timeToEvent = level.time - count*5;
+	
+	//gi.centerprintf(ent,"time:%f",timeToEvent);
+	if (timeToEvent > 5.0){
 		timeToEvent = 0.0;
 		count += 1;
+		rando = 5 * crandom();
+		//ent->health = ent->health / 2;
+		//ent->health = ent->health * 2;
+		//self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+		/*edict_t *bomba;
+		vec3_t apple;
+		bomba = G_Spawn();
+		VectorCopy(self->s.origin, bomba->s.origin);
+		SP_monster_mutant(bomba);
+		gi.linkentity(bomba);*/
+		
+		if (rando < 0){
+			rando = -rando;
+		}
+		if (rando == 0){
+			self->monsterinfo.currentmove = &boss2_move_attack_mg;
+			gi.centerprintf(ent, "random event : GUN");
+		}
+		if (rando == 1){
+			ent->health = ent->health / 2;
+			gi.centerprintf(ent, "random event : HALF HEALTH");
+		}
+		if (rando == 2){
+		 ent->health = ent->health * 2;
+		 gi.centerprintf(ent, "random event : DOUBLE HEALTH");
+		}
+		if (rando == 3){
+			self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+			gi.centerprintf(ent, "random event : MISSLES");
+		}
+		if (rando == 4){
+			edict_t *bomba;
+			vec3_t apple;
+			bomba = G_Spawn();
+			VectorCopy(self->s.origin, bomba->s.origin);
+			SP_monster_mutant(bomba);
+			gi.linkentity(bomba);
+			gi.centerprintf(ent, "random event : SPAWN MUTANT");
+		}
+		//gi.centerprintf(ent, "random event number:%i", rando);
+
 	}
 }
 
@@ -648,7 +691,7 @@ void SP_monster_boss2 (edict_t *self)
 		return;
 	}
 	count = 0;
-	
+	ent = findradius(ent, self->s.origin, 20.0);
 
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
