@@ -14,6 +14,8 @@ float timer;
 float timeToEvent;
 int count;
 int rando;
+int startmonsters;
+int deader;
 edict_t	*ent = NULL;
 
 qboolean infront (edict_t *self, edict_t *other);
@@ -405,55 +407,66 @@ void boss2_stand (edict_t *self)
 }
 
 void boss2_event(edict_t *self){
+	if (level.killed_monsters == startmonsters){
+		VectorSet(self->mins, -56, -56, 0);
+		VectorSet(self->maxs, 56, 56, 80);
+		self->movetype = MOVETYPE_TOSS;
+		self->svflags |= SVF_DEADMONSTER;
+		self->nextthink = 0;
+		gi.linkentity(self);
+		gi.centerprintf(ent, "Boss dead");
+		deader = 1;
+}
 	
-
 	timeToEvent = level.time - count*5;
-	
-	//gi.centerprintf(ent,"time:%f",timeToEvent);
-	if (timeToEvent > 5.0){
-		timeToEvent = 0.0;
-		count += 1;
-		rando = 5 * crandom();
-		//ent->health = ent->health / 2;
-		//ent->health = ent->health * 2;
-		//self->monsterinfo.currentmove = &boss2_move_attack_rocket;
-		/*edict_t *bomba;
-		vec3_t apple;
-		bomba = G_Spawn();
-		VectorCopy(self->s.origin, bomba->s.origin);
-		SP_monster_mutant(bomba);
-		gi.linkentity(bomba);*/
-		
-		if (rando < 0){
-			rando = -rando;
-		}
-		if (rando == 0){
-			self->monsterinfo.currentmove = &boss2_move_attack_mg;
-			gi.centerprintf(ent, "random event : GUN");
-		}
-		if (rando == 1){
-			ent->health = ent->health / 2;
-			gi.centerprintf(ent, "random event : HALF HEALTH");
-		}
-		if (rando == 2){
-		 ent->health = ent->health * 2;
-		 gi.centerprintf(ent, "random event : DOUBLE HEALTH");
-		}
-		if (rando == 3){
-			self->monsterinfo.currentmove = &boss2_move_attack_rocket;
-			gi.centerprintf(ent, "random event : MISSLES");
-		}
-		if (rando == 4){
-			edict_t *bomba;
+	if (deader == 0){
+		//gi.centerprintf(ent,"time:%f",timeToEvent);
+		if (timeToEvent > 5.0){
+			timeToEvent = 0.0;
+			count += 1;
+			rando = 5*crandom();
+			//rando = 5 * crandom();
+			//ent->health = ent->health / 2;
+			//ent->health = ent->health * 2;
+			//self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+			/*edict_t *bomba;
 			vec3_t apple;
 			bomba = G_Spawn();
 			VectorCopy(self->s.origin, bomba->s.origin);
 			SP_monster_mutant(bomba);
-			gi.linkentity(bomba);
-			gi.centerprintf(ent, "random event : SPAWN MUTANT");
-		}
-		//gi.centerprintf(ent, "random event number:%i", rando);
+			gi.linkentity(bomba);*/
 
+			if (rando < 0){
+				rando = -rando;
+			}
+			if (rando == 0){
+				self->monsterinfo.currentmove = &boss2_move_attack_mg;
+				gi.centerprintf(ent, "random event : GUN");
+			}
+			if (rando == 1){
+				ent->health = ent->health / 2;
+				gi.centerprintf(ent, "random event : HALF HEALTH");
+			}
+			if (rando == 2){
+				ent->health = ent->health * 2;
+				gi.centerprintf(ent, "random event : DOUBLE HEALTH");
+			}
+			if (rando == 3){
+				self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+				gi.centerprintf(ent, "random event : MISSLES");
+			}
+			if (rando == 4){
+				edict_t *bomba;
+				vec3_t apple;
+				bomba = G_Spawn();
+				VectorCopy(self->s.origin, bomba->s.origin);
+				SP_monster_mutant(bomba);
+				gi.linkentity(bomba);
+				gi.centerprintf(ent, "random event : SPAWN MUTANT");
+			}
+			//gi.centerprintf(ent, "random event number:%i", rando);
+
+		}
 	}
 }
 
@@ -692,7 +705,8 @@ void SP_monster_boss2 (edict_t *self)
 	}
 	count = 0;
 	ent = findradius(ent, self->s.origin, 20.0);
-
+	startmonsters = level.total_monsters/2;
+	deader = 0;
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
 	sound_pain3 = gi.soundindex ("bosshovr/bhvpain3.wav");
