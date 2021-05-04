@@ -1260,7 +1260,7 @@ void PutClientInServer (edict_t *ent)
 	
 	gi.linkentity(banana);
 	
-	//gi.centerprintf(ent, "Spawned in");
+	gi.centerprintf(ent, "RUN");
 	// force the current weapon up
 	client->newweapon = client->pers.weapon;
 	ChangeWeapon (ent);

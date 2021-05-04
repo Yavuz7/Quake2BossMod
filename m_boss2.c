@@ -407,6 +407,7 @@ void boss2_stand (edict_t *self)
 }
 
 void boss2_event(edict_t *self){
+	startmonsters = level.total_monsters - 6;
 	if (level.killed_monsters == startmonsters){
 		VectorSet(self->mins, -56, -56, 0);
 		VectorSet(self->maxs, 56, 56, 80);
@@ -430,13 +431,6 @@ void boss2_event(edict_t *self){
 			//ent->health = ent->health / 2;
 			//ent->health = ent->health * 2;
 			//self->monsterinfo.currentmove = &boss2_move_attack_rocket;
-			/*edict_t *bomba;
-			vec3_t apple;
-			bomba = G_Spawn();
-			VectorCopy(self->s.origin, bomba->s.origin);
-			SP_monster_mutant(bomba);
-			gi.linkentity(bomba);*/
-
 			if (rando < 0){
 				rando = -rando;
 			}
@@ -706,7 +700,7 @@ void SP_monster_boss2 (edict_t *self)
 	}
 	count = 0;
 	ent = findradius(ent, self->s.origin, 20.0);
-	startmonsters = level.total_monsters-4;
+	startmonsters = level.total_monsters-6;
 	deader = 0;
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
