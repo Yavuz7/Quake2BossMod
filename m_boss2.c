@@ -616,7 +616,7 @@ qboolean Boss2_CheckAttack (edict_t *self)
 		//tr = gi.trace(spot1, NULL, NULL, spot2, self, CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA);
 
 		// do we have a clear shot?
-		if (tr.ent != self->enemy)
+		//if (tr.ent != self->enemy)
 			return false;
 	}
 	
