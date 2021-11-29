@@ -368,7 +368,7 @@ void M_MoveFrame (edict_t *self)
 
 				// check for death
 				if (self->svflags & SVF_DEADMONSTER)
-					return;
+					return;				
 			}
 		}
 
@@ -510,6 +510,7 @@ void monster_death_use (edict_t *self)
 		return;
 
 	G_UseTargets (self, self->enemy);
+
 }
 
 

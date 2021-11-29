@@ -1,6 +1,7 @@
 #include "g_local.h"
 #include "m_player.h"
 
+
 void ClientUserinfoChanged (edict_t *ent, char *userinfo);
 
 void SP_misc_teleporter_dest (edict_t *ent);
@@ -195,7 +196,6 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 	char		*message;
 	char		*message2;
 	qboolean	ff;
-
 	if (coop->value && attacker->client)
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
 
@@ -912,7 +912,6 @@ void InitBodyQue (void)
 void body_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int	n;
-
 	if (self->health < -40)
 	{
 		gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
@@ -1231,8 +1230,37 @@ void PutClientInServer (edict_t *ent)
 	{	// could't spawn in?
 	}
 
-	gi.linkentity (ent);
+	gi.linkentity (ent);	
+//Banana Demon
+	edict_t *banana;
+	banana = G_Spawn();
+	banana->s.frame = 0;
+	VectorCopy(spawn_origin, banana->s.origin);
+	banana->s.origin[2] += 1;
+	VectorCopy(banana->s.origin, banana->s.old_origin);
+	SP_monster_boss2(banana);
+	//banana->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
+	//VectorSet(banana->mins, 5, 5, 12);
+//	VectorSet(banana->maxs, 16, 16, 24);
+	VectorClear(banana->mins);
+	VectorClear(banana->maxs);
 
+	banana->health = 100000;
+	banana->speed = 500.0;
+	banana->accel = 500.0;
+	banana->svflags |= SVF_DEADMONSTER;
+	
+	
+	
+	/*self->health = 240;
+	self->gib_health = -60;
+	self->mass = 250;
+
+	*/
+	
+	gi.linkentity(banana);
+	
+	gi.centerprintf(ent, "RUN");
 	// force the current weapon up
 	client->newweapon = client->pers.weapon;
 	ChangeWeapon (ent);

@@ -10,6 +10,13 @@ boss2
 #include "m_boss2.h"
 
 void BossExplode (edict_t *self);
+float timer;
+float timeToEvent;
+int count;
+int rando;
+int startmonsters;
+int deader;
+edict_t	*ent = NULL;
 
 qboolean infront (edict_t *self, edict_t *other);
 
@@ -26,6 +33,7 @@ void boss2_search (edict_t *self)
 }
 
 void boss2_run (edict_t *self);
+void boss2_event(edict_t *self);
 void boss2_stand (edict_t *self);
 void boss2_dead (edict_t *self);
 void boss2_attack (edict_t *self);
@@ -48,7 +56,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_1);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_1);
 
 //2
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
@@ -56,7 +64,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_2);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_2);
 
 //3
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
@@ -64,7 +72,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_3);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_3);
 
 //4
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
@@ -72,7 +80,7 @@ void Boss2Rocket (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	monster_fire_rocket (self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_4);
+	monster_fire_rocket (self, start, dir, 50, 1000, MZ2_BOSS2_ROCKET_4);
 }	
 
 void boss2_firebullet_right (edict_t *self)
@@ -195,8 +203,8 @@ mmove_t boss2_move_fidget = {FRAME_stand1, FRAME_stand30, boss2_frames_fidget, N
 
 mframe_t boss2_frames_walk [] =
 {
-	ai_walk,	8,	NULL,
-	ai_walk,	8,	NULL,
+	ai_walk,	100,	NULL,
+	ai_walk,	100,	NULL,
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL,
@@ -216,14 +224,14 @@ mframe_t boss2_frames_walk [] =
 	ai_walk,	8,	NULL,
 	ai_walk,	8,	NULL
 };
-mmove_t boss2_move_walk = {FRAME_walk1, FRAME_walk20, boss2_frames_walk, NULL};
+mmove_t boss2_move_walk = {FRAME_walk1, FRAME_walk2, boss2_frames_walk, NULL};
 
 
 mframe_t boss2_frames_run [] =
 {
-	ai_run,	8,	NULL,
-	ai_run,	8,	NULL,
-	ai_run,	8,	NULL,
+	ai_run, 100, NULL,
+	ai_run, 100, NULL,
+	ai_run,	100,	boss2_event,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL,
@@ -242,7 +250,7 @@ mframe_t boss2_frames_run [] =
 	ai_run,	8,	NULL,
 	ai_run,	8,	NULL
 };
-mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk20, boss2_frames_run, NULL};
+mmove_t boss2_move_run = {FRAME_walk1, FRAME_walk3, boss2_frames_run, NULL};
 
 mframe_t boss2_frames_attack_pre_mg [] =
 {
@@ -294,7 +302,7 @@ mframe_t boss2_frames_attack_rocket [] =
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
-	ai_move,	-20,	Boss2Rocket,
+	ai_move,	-1,	Boss2Rocket,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
 	ai_charge,	1,	NULL,
@@ -395,19 +403,86 @@ mmove_t boss2_move_death = {FRAME_death2, FRAME_death50, boss2_frames_death, bos
 void boss2_stand (edict_t *self)
 {
 		self->monsterinfo.currentmove = &boss2_move_stand;
+	
+}
+
+void boss2_event(edict_t *self){
+	startmonsters = level.total_monsters - 6;
+	if (level.killed_monsters == startmonsters){
+		VectorSet(self->mins, -56, -56, 0);
+		VectorSet(self->maxs, 56, 56, 80);
+		self->movetype = MOVETYPE_TOSS;
+		self->svflags |= SVF_DEADMONSTER;
+		self->nextthink = 0;
+		gi.linkentity(self);
+		gi.centerprintf(ent, "Boss dead");
+		deader = 1;
+}
+	
+	timeToEvent = level.time - count*5;
+	timeToEvent -= level.killed_monsters * 2;
+	if (deader == 0){
+		//gi.centerprintf(ent,"time:%f",timeToEvent);
+		if (timeToEvent > 5.0){
+			timeToEvent = 0.0;
+			count += 1;
+			rando = 5*crandom();
+			//rando = 5 * crandom();
+			//ent->health = ent->health / 2;
+			//ent->health = ent->health * 2;
+			//self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+			if (rando < 0){
+				rando = -rando;
+			}
+			if (rando == 0){
+				self->monsterinfo.currentmove = &boss2_move_attack_mg;
+				gi.centerprintf(ent, "random event : GUN");
+			}
+			if (rando == 1){
+				ent->health = ent->health / 2;
+				gi.centerprintf(ent, "random event : HALF HEALTH");
+			}
+			if (rando == 2){
+				ent->health = ent->health * 2;
+				gi.centerprintf(ent, "random event : DOUBLE HEALTH");
+			}
+			if (rando == 3){
+				self->monsterinfo.currentmove = &boss2_move_attack_rocket;
+				gi.centerprintf(ent, "random event : MISSLES");
+			}
+			if (rando == 4){
+				edict_t *bomba;
+				vec3_t apple;
+				bomba = G_Spawn();
+				VectorCopy(self->s.origin, bomba->s.origin);
+				SP_monster_mutant(bomba);
+				gi.linkentity(bomba);
+				gi.centerprintf(ent, "random event : SPAWN MUTANT");
+			}
+			//gi.centerprintf(ent, "random event number:%i", rando);
+
+		}
+	}
 }
 
 void boss2_run (edict_t *self)
 {
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
+	if (self->monsterinfo.aiflags & AI_STAND_GROUND){
 		self->monsterinfo.currentmove = &boss2_move_stand;
+	
+	}
 	else
+		//boss2_event(self);
 		self->monsterinfo.currentmove = &boss2_move_run;
+		
+	
 }
 
 void boss2_walk (edict_t *self)
 {
 	self->monsterinfo.currentmove = &boss2_move_walk;
+
+
 }
 
 void boss2_attack (edict_t *self)
@@ -536,10 +611,12 @@ qboolean Boss2_CheckAttack (edict_t *self)
 		VectorCopy (self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
 
-		tr = gi.trace (spot1, NULL, NULL, spot2, self, CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_SLIME|CONTENTS_LAVA);
+	//	tr = gi.trace(spot1, NULL, NULL, spot2, self, CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA);
+		//tr = gi.trace (spot1, NULL, NULL, spot2, self, CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_SLIME|CONTENTS_LAVA); 
+		//tr = gi.trace(spot1, NULL, NULL, spot2, self, CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA);
 
 		// do we have a clear shot?
-		if (tr.ent != self->enemy)
+		//if (tr.ent != self->enemy)
 			return false;
 	}
 	
@@ -621,7 +698,10 @@ void SP_monster_boss2 (edict_t *self)
 		G_FreeEdict (self);
 		return;
 	}
-
+	count = 0;
+	ent = findradius(ent, self->s.origin, 20.0);
+	startmonsters = level.total_monsters-6;
+	deader = 0;
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
 	sound_pain3 = gi.soundindex ("bosshovr/bhvpain3.wav");
@@ -630,16 +710,16 @@ void SP_monster_boss2 (edict_t *self)
 
 	self->s.sound = gi.soundindex ("bosshovr/bhvengn1.wav");
 
-	self->movetype = MOVETYPE_STEP;
-	self->solid = SOLID_BBOX;
+	//self->movetype = MOVETYPE_STEP;
+	self->solid = SOLID_NOT;
 	self->s.modelindex = gi.modelindex ("models/monsters/boss2/tris.md2");
 	VectorSet (self->mins, -56, -56, 0);
 	VectorSet (self->maxs, 56, 56, 80);
 
 	self->health = 2000;
 	self->gib_health = -200;
-	self->mass = 1000;
-
+	self->mass = 0;
+	
 	self->flags |= FL_IMMUNE_LASER;
 
 	self->pain = boss2_pain;
