@@ -1,6 +1,6 @@
 READ ME
 
-This mod creates a hell demon that follows you around the map
+This mod creates a boss monster that follows you around the map
 
 Changes:
 
